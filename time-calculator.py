@@ -26,13 +26,37 @@ add_time("11:43 PM", "24:20", "tueSday")
 add_time("6:30 PM", "205:12")
 # Returns: 7:42 AM (9 days later)
 
+
+BUGS:
+
+Expected calling "add_time()" with "8:16 PM", "466:02" to return "6:18 AM (20 days later)"
+
+----
+
+'Expected period to change from AM to PM at 12:00')
+AssertionError: '0:05 PM' != '12:05 PM'
+- 0:05 PM
+? ^
++ 12:05 PM
+? ^^
+ : Expected period to change from AM to PM at 12:00
+
+
+----
+
+
+Expected calling "add_time()" with "11:59 PM", "24:05" to return "12:04 AM (2 days later)"
+
+
+Expected calling "add_time()" with "2:59 AM", "24:00", "Wednesday" to return "12:04 AM, Friday (2 days later)"
+
 '''
 
 
 
 def add_time(start, duration, weekday = None):
 
-
+    results = {}
 
     ampm = start.split(' ')[1].upper()
 
@@ -51,15 +75,32 @@ def add_time(start, duration, weekday = None):
     print(f'reminder: {reminder},  half_days: {half_days}')
 
     if (start_h + reminder >= 12 and half_days == 0) or half_days % 2 == 1:
-        if ampm == 'PM': ampm = 'AM'
-        else: ampm = 'PM'
+        if ampm == 'PM': new_ampm = 'AM'
+        else: new_ampm = 'PM'
+    else: new_ampm = ampm
 
     new_h = (start_h + reminder) % 12
     new_m = str((start_m + dur_m) % 60).zfill(2)
 
-    result = f'{new_h}:{new_m} {ampm}'
+    if new_ampm == 'PM' and new_h == 12:
+        new_h = 0
 
-    
+    results['time'] = f'{new_h}:{new_m} {new_ampm}'
+        
+
+    # Getting Days Later
+    # next day, 2 days later, 3 days later ...
+
+
+    days_later = half_days // 2
+
+    if ampm == 'PM':
+        days_later += half_days % 2
+        if start_h + reminder >= 12:
+            days_later += 1  
+    if ampm == 'AM':
+        pass
+
 
     # Getting Weekday
     
@@ -67,23 +108,32 @@ def add_time(start, duration, weekday = None):
         weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
                     'Friday', 'Saturday', 'Sunday']
         weekday_index = weekdays.index(weekday.title())
-        result += ' ' + weekdays[weekday_index]
+        new_weekday_index = weekday_index + (days_later % 7)
+        
+        results['weekday'] = weekdays[new_weekday_index]
+
         
 
-    # Getting Days Later
-    # next day, 2 days later, 3 days later ...
+    print(f'days_later: {days_later}')
 
 
+    if days_later == 1:
+        results['days_later'] = '(next day)'
+    elif days_later > 1:    
+        results['days_later'] =  f'({days_later} days later)'
+
+    result = f'{results["time"]}'
+
+    if weekday:
+        result += f', {results["weekday"]}'
+    if days_later > 0:
+        result += f' {results["days_later"]}'
     return result
 
 
+#Expected calling "add_time()" with "2:59 AM", "24:00", "Wednesday" to return "12:04 AM, Friday (2 days later)"
 
-
-print(add_time("8:30 PM", "25", 'moNday'))
-print(add_time("8:30 PM", "5"))
-print(add_time("8:30 PM", "15"))
-
-
+print(add_time("2:59 AM", "24:00", "Wednesday"))
 
 
 
