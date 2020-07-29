@@ -67,31 +67,27 @@ def create_spend_chart(categories):
         spent_list.append(spent)
         total_spent += spent
 
+    # Get percentage rounded down to the nearest 10
+    percentage = [(x / total_spent) * 100 // 10 * 10 for x in spent_list]
 
-    raw_precentages = [(x / total_spent) for x in spent_list]
-    percentages = [round((x / total_spent), 1) * 100 for x in spent_list]
-    # Example percentages: [70, 20, 10]
-
-    print('========DEBUG========')
-    print('spent_list:', spent_list)
-    print('percentages:', percentages)
-    print('raw_precentages:', raw_precentages)
-    print('total_spent:', total_spent)
-    print('=====================')
+    # print('========DEBUG========')
+    # print('spent_list:', spent_list)
+    # print('percentage:', percentage)
+    # print('total_spent:', total_spent)
+    # print('=====================')
 
     # Formatting Percentages
-
     for i in range(11):
         percent_level = 100 - i * 10
         s = (str(percent_level) + '|').rjust(4)
 
-        for i in range(len(percentages)):
+        for i in range(len(percentage)):
 
-            if percentages[i] >= percent_level:
+            if percentage[i] >= percent_level:
                 s += ' o '
             else:
                 s += '   '       
-
+        s += ' '
         rows.append(s)
 
     
@@ -105,29 +101,10 @@ def create_spend_chart(categories):
     rows.append(' ' * 4 + '-' * (len(categories) * 3 + 1))
 
     for i in zip(*names):
-       rows.append(' '*5 + '  '.join(i))
+       rows.append(' '*5 + '  '.join(i) + '  ')
     
     result=''
     for row in rows:
         result += row + '\n'
     
-    return result   #.rstrip('\n')
-
-
-food = Category("Food")
-food.deposit(1000, "initial deposit")
-food.withdraw(10.15, "groceries")
-food.withdraw(15.89, "restaurant and more food for dessert")
-clothing = Category("Clothing")
-food.transfer(50, clothing)
-clothing.withdraw(25.55)
-clothing.withdraw(100)
-auto = Category("Auto")
-auto.deposit(1000, "initial deposit")
-auto.withdraw(15)
-
-print(food)
-print(clothing)
-print(auto)
-
-print(create_spend_chart([food, clothing, auto]))
+    return result.rstrip('\n')
